@@ -1,3 +1,3 @@
-module github.com/TranTheTuan/pb-contracts-go
+module github.com/MoviezCenter/pb-contracts-go
 
 go 1.23.1
