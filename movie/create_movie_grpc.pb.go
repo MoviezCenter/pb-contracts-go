@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MovieService_GetMovieList_FullMethodName   = "/movie.v1.MovieService/GetMovieList"
-	MovieService_GetMovieDetail_FullMethodName = "/movie.v1.MovieService/GetMovieDetail"
+	MovieService_GetMovieList_FullMethodName      = "/movie.v1.MovieService/GetMovieList"
+	MovieService_GetMovieDetail_FullMethodName    = "/movie.v1.MovieService/GetMovieDetail"
+	MovieService_FindByDescription_FullMethodName = "/movie.v1.MovieService/FindByDescription"
 )
 
 // MovieServiceClient is the client API for MovieService service.
@@ -29,6 +30,7 @@ const (
 type MovieServiceClient interface {
 	GetMovieList(ctx context.Context, in *GetMovieListRequest, opts ...grpc.CallOption) (*GetMovieListResponse, error)
 	GetMovieDetail(ctx context.Context, in *GetMovieDetailRequest, opts ...grpc.CallOption) (*GetMovieDetailResponse, error)
+	FindByDescription(ctx context.Context, in *FindByDescriptionRequest, opts ...grpc.CallOption) (*FindByDescriptionResponse, error)
 }
 
 type movieServiceClient struct {
@@ -59,12 +61,23 @@ func (c *movieServiceClient) GetMovieDetail(ctx context.Context, in *GetMovieDet
 	return out, nil
 }
 
+func (c *movieServiceClient) FindByDescription(ctx context.Context, in *FindByDescriptionRequest, opts ...grpc.CallOption) (*FindByDescriptionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindByDescriptionResponse)
+	err := c.cc.Invoke(ctx, MovieService_FindByDescription_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MovieServiceServer is the server API for MovieService service.
 // All implementations must embed UnimplementedMovieServiceServer
 // for forward compatibility.
 type MovieServiceServer interface {
 	GetMovieList(context.Context, *GetMovieListRequest) (*GetMovieListResponse, error)
 	GetMovieDetail(context.Context, *GetMovieDetailRequest) (*GetMovieDetailResponse, error)
+	FindByDescription(context.Context, *FindByDescriptionRequest) (*FindByDescriptionResponse, error)
 	mustEmbedUnimplementedMovieServiceServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedMovieServiceServer) GetMovieList(context.Context, *GetMovieLi
 }
 func (UnimplementedMovieServiceServer) GetMovieDetail(context.Context, *GetMovieDetailRequest) (*GetMovieDetailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMovieDetail not implemented")
+}
+func (UnimplementedMovieServiceServer) FindByDescription(context.Context, *FindByDescriptionRequest) (*FindByDescriptionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindByDescription not implemented")
 }
 func (UnimplementedMovieServiceServer) mustEmbedUnimplementedMovieServiceServer() {}
 func (UnimplementedMovieServiceServer) testEmbeddedByValue()                      {}
@@ -138,6 +154,24 @@ func _MovieService_GetMovieDetail_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MovieService_FindByDescription_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindByDescriptionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MovieServiceServer).FindByDescription(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MovieService_FindByDescription_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MovieServiceServer).FindByDescription(ctx, req.(*FindByDescriptionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MovieService_ServiceDesc is the grpc.ServiceDesc for MovieService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var MovieService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMovieDetail",
 			Handler:    _MovieService_GetMovieDetail_Handler,
+		},
+		{
+			MethodName: "FindByDescription",
+			Handler:    _MovieService_FindByDescription_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
